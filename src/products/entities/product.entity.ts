@@ -14,7 +14,7 @@ export class Product {
     }) //Se especifica que esta es una columna el tipo de dato y las opciones
     title: string;
 
-    @Column('numeric', {
+    @Column('float', {
         default: 0,
         nullable: false
     })
