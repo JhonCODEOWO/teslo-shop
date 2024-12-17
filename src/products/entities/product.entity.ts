@@ -1,6 +1,6 @@
 //product.entity.ts
 
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 //Representación de una tabla
 @Entity()
@@ -27,7 +27,8 @@ export class Product {
     description: string;
 
     @Column('text', {
-        unique: true
+        unique: true,
+        nullable: false
     })
     slug: string;
 
@@ -43,6 +44,17 @@ export class Product {
 
     @Column('text')
     gender: string;
+
+    @BeforeInsert()
+    checkSlugInsert(){
+        //Si no viene el slug....
+        if(!this.slug) this.slug = this.title;
+
+        //Aplicamos las reglas de formato siempre al slug.
+        this.slug = this.slug.toLowerCase().replaceAll(' ', '_').replaceAll("'", '');
+    }
+
+    //@BeforeUpdate()
     // Tags
     //Images
 }
