@@ -1,6 +1,7 @@
 //product.entity.ts
 
-import { BeforeInsert, BeforeUpdate, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { ProductImage } from "./product-image.entity";
 
 //Representación de una tabla
 @Entity()
@@ -53,6 +54,12 @@ export class Product {
     tags: string[];
 
     //Images
+    @OneToMany(
+        ()=> ProductImage, //Definimos hacia que entidad aplicará la relación one to many
+        (productImage) => productImage.product, //Definimos el dato que esperamos recibir de manera inversa
+        {cascade: true} //Definimos si habrá eliminación en cascada
+    )
+    images?: ProductImage[]
 
 
     @BeforeInsert()

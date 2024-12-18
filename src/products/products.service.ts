@@ -12,6 +12,7 @@ import { Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import {validate as isUUID} from 'uuid';
+import { ProductImage } from './entities';
 
 @Injectable()
 export class ProductsService {
@@ -19,15 +20,26 @@ export class ProductsService {
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
+
+    @InjectRepository(ProductImage)
+    private readonly productImageRepository: Repository<ProductImage>
   ) {}
 
   async create(createProductDto: CreateProductDto) {
     try {
-      const product = this.productRepository.create(createProductDto); //Solo crea una instancia del repositorio.
+      //Desestructurar el dto y obtener las imagenes por separado de los datos de un producto...
+      const { images = [], ...productDetails } = createProductDto;
+
+
+      const product = this.productRepository.create({
+        ...productDetails,
+        images: images.map(image => this.productImageRepository.create({ url: image })) //Recorrer los datos dentro de images y crea un registro, TypeORM automáticamente relaciona esas imagenes a el producto
+      }); //Solo crea una instancia del repositorio.
 
       await this.productRepository.save(product); //Almacenarlo en la base de datos.
 
-      return product;
+      //Retorna el objeto product con la propiedad images como la destructurada
+      return {...product, images};
     } catch (error) {
       this.handleDBExceptions(error);
     }
@@ -75,7 +87,8 @@ export class ProductsService {
     //Obtiene un objeto del tipo Product y asigna todos los datos que tiene updateProductDto pero no actualiza, sin embargo es una instancia que apunta al registro en la base de datos.
     const product = await this.productRepository.preload({
       id: id,
-      ...updateProductDto
+      ...updateProductDto,
+      images: []
     });
 
     if(!product) new BadRequestException(`The product with ID ${id} doesn't exists`);

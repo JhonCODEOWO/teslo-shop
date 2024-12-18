@@ -1,4 +1,4 @@
-import { IsArray, IsIn, IsInt, IsNumber, IsOptional, IsPositive, IsString, MinLength } from "class-validator";
+import { isArray, IsArray, IsIn, IsInt, IsNumber, IsOptional, IsPositive, IsString, MinLength } from "class-validator";
 
 export class CreateProductDto {
 
@@ -36,4 +36,9 @@ export class CreateProductDto {
     @IsString({each: true}) //Valida que cada elemento del array sea string
     @IsArray() //Valida que el dato recibido eaun string
     tags?: string[]
+
+    @IsString({each: true})
+    @IsArray()
+    @IsOptional()
+    images?: string[];
 }
