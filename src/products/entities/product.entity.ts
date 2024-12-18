@@ -45,6 +45,16 @@ export class Product {
     @Column('text')
     gender: string;
 
+    // Tags definidos como un arreglo de strings
+    @Column('text', {
+        array: true,
+        default: []
+    })
+    tags: string[];
+
+    //Images
+
+
     @BeforeInsert()
     checkSlugInsert(){
         //Si no viene el slug....
@@ -61,6 +71,4 @@ export class Product {
         //Aplicamos las reglas de formato siempre al slug.
         this.slug = this.slug.toLowerCase().replaceAll(' ', '_').replaceAll("'", '');
     }
-    // Tags
-    //Images
 }

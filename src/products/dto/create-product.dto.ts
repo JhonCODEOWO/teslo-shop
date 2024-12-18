@@ -31,4 +31,9 @@ export class CreateProductDto {
 
     @IsIn(['men', 'women', 'kid', 'unisex']) //Verifica que el valor recibido exista dentro de los declarados en la matríz del argumento.
     gender: string;
+
+    @IsOptional()
+    @IsString({each: true}) //Valida que cada elemento del array sea string
+    @IsArray() //Valida que el dato recibido eaun string
+    tags?: string[]
 }
