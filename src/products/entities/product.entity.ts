@@ -57,7 +57,7 @@ export class Product {
     @OneToMany(
         ()=> ProductImage, //Definimos hacia que entidad aplicará la relación one to many
         (productImage) => productImage.product, //Definimos el dato que esperamos recibir de manera inversa
-        {cascade: true} //Definimos si habrá eliminación en cascada
+        {cascade: true, eager: true} //Definimos si habrá eliminación en cascada
     )
     images?: ProductImage[]
 

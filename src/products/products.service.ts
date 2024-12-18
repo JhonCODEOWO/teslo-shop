@@ -46,16 +46,25 @@ export class ProductsService {
   }
 
   //TODO: PAGINAR
-  findAll(paginationDto: PaginationDto) {
+  async findAll(paginationDto: PaginationDto) {
     try {
       //Limit y offser con valores por defecto.
       const {limit=10, offset=0} = paginationDto;
-      return this.productRepository.find({
+      const products = await this.productRepository.find({
         take: limit,
-        skip: offset
+        skip: offset,
 
         //TODO: RELACIONES
+        relations: {
+          images: true, //Elegir images como una relación a mostrar
+        }
       });
+
+
+      return products.map( product =>({ //Recorre todo el arreglo y devuelve un nuevo arreglo que contiene el producto en spread con la propiedad images personalizada
+        ...product,
+        images: product.images.map( image => image.url) //Recorre el arreglo images y por cada imagen va a devolver como valor nuevo solo el url
+      }));
     } catch (error) {
       this.handleDBExceptions(error);
     }
@@ -69,18 +78,29 @@ export class ProductsService {
     if(isUUID(term)){
       product = await this.productRepository.findOneBy({ id: term });
     }else{
-      const queryBuilder = this.productRepository.createQueryBuilder();
+      const queryBuilder = this.productRepository.createQueryBuilder('prod');
 
       product = await queryBuilder
         .where(`UPPER(title) = :title or slug = :slug`, {
           title: term.toUpperCase(),
           slug: term.toLowerCase()
-        }).getOne();
+        })
+        .leftJoinAndSelect('prod.images', 'prodImages')
+        .getOne();
     }
 
     if (!product) throw new NotFoundException(`The product that you're searching by ${term} doesn't exists`);
 
     return product;
+  }
+
+  async findOnePlain(term: string){
+    const {images = [], ...details}= await this.findOne(term);
+
+    return {
+      ...details,
+      images: images.map(image => image.url)
+    };
   }
 
   async update(id: string, updateProductDto: UpdateProductDto) {
