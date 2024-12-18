@@ -54,7 +54,13 @@ export class Product {
         this.slug = this.slug.toLowerCase().replaceAll(' ', '_').replaceAll("'", '');
     }
 
-    //@BeforeUpdate()
+    @BeforeUpdate()
+    checkSlugUpdate(){
+        //El slug siempre va a venir en un producto previamente guardado si no se incluye en el body...
+
+        //Aplicamos las reglas de formato siempre al slug.
+        this.slug = this.slug.toLowerCase().replaceAll(' ', '_').replaceAll("'", '');
+    }
     // Tags
     //Images
 }
