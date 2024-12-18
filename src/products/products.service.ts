@@ -71,8 +71,22 @@ export class ProductsService {
     return product;
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+  async update(id: string, updateProductDto: UpdateProductDto) {
+    //Obtiene un objeto del tipo Product y asigna todos los datos que tiene updateProductDto pero no actualiza, sin embargo es una instancia que apunta al registro en la base de datos.
+    const product = await this.productRepository.preload({
+      id: id,
+      ...updateProductDto
+    });
+
+    if(!product) new BadRequestException(`The product with ID ${id} doesn't exists`);
+
+    //Guardar nuevo objeto el método guarda si el objeto no existe o actualiza en caso contrario.
+    try {
+      await this.productRepository.save(product);
+      return product;
+    } catch (error) {
+      this.handleDBExceptions(error);
+    }
   }
 
   async remove(id: string) {
