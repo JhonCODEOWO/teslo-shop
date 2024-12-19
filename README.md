@@ -13,4 +13,7 @@
   docker-compose up -d
   ```
 
+6. Ejecutar seed para la base de datos
+```localhost:3000/api/seed```
+
 6. Correr proyecto en modo dev ```npm run start:dev```
