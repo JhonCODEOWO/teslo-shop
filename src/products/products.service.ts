@@ -178,4 +178,18 @@ export class ProductsService {
       'Unknown error, check logs to see what happened',
     );
   }
+
+  //Solo para producción, borra todos los productos.
+  async deleteAllProducts(){
+    const query = this.productRepository.createQueryBuilder('product');
+
+    try {
+      return await query
+          .delete()
+          .where({})
+          .execute();
+    } catch (error) {
+      this.handleDBExceptions(error);
+    }
+  }
 }
