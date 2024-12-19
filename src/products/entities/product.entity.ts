@@ -4,7 +4,9 @@ import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryGenerated
 import { ProductImage } from "./product-image.entity";
 
 //Representación de una tabla
-@Entity()
+@Entity({
+    name: 'products'
+})
 export class Product {
     
     @PrimaryGeneratedColumn('uuid') //Configurar clave primaria como un uuid
