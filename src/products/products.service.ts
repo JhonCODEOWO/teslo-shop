@@ -8,7 +8,7 @@ import {
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import {validate as isUUID} from 'uuid';
@@ -22,7 +22,9 @@ export class ProductsService {
     private readonly productRepository: Repository<Product>,
 
     @InjectRepository(ProductImage)
-    private readonly productImageRepository: Repository<ProductImage>
+    private readonly productImageRepository: Repository<ProductImage>,
+
+    private readonly dataSource: DataSource
   ) {}
 
   async create(createProductDto: CreateProductDto) {
@@ -104,20 +106,57 @@ export class ProductsService {
   }
 
   async update(id: string, updateProductDto: UpdateProductDto) {
-    //Obtiene un objeto del tipo Product y asigna todos los datos que tiene updateProductDto pero no actualiza, sin embargo es una instancia que apunta al registro en la base de datos.
+
+    //Desestructurar dto
+    const {images, ...toUpdate} = updateProductDto;
+
+    //Precarga un registro en la base de datos sustituyendo los valores por los ingresados como parámetro excepto el id
     const product = await this.productRepository.preload({
       id: id,
-      ...updateProductDto,
-      images: []
+      ...toUpdate
     });
 
+    //Si product es null..
     if(!product) new BadRequestException(`The product with ID ${id} doesn't exists`);
+
+    //Create query runner
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    //Realizar conexión
+    await queryRunner.connect();
+    //Comenzar transacción
+    await queryRunner.startTransaction();
 
     //Guardar nuevo objeto el método guarda si el objeto no existe o actualiza en caso contrario.
     try {
-      await this.productRepository.save(product);
-      return product;
+      //Validar si las imagenes están presentes.
+      if(images){
+        //Borrar imagenes: Primer argumento es la entidad a afectar y segundo argumento el criterio para eliminarlos.
+        await queryRunner.manager.delete(ProductImage, { product: { id } });
+
+        //Añadir nuevas imagenes hacia el objeto preload del registro cargando instancias de ProductImages
+        product.images = images.map(
+          image => this.productImageRepository.create({url: image})
+        );
+      } else {
+        //TO DO: CASO EN DONDE NO HAY DATOS EN IMAGES
+      }
+
+      //Intenta guardar el registro
+      await queryRunner.manager.save(product);
+
+      //Realizar transacción e impactar la base de datos
+      await queryRunner.commitTransaction();
+
+      //Liberar y cerrar queryRunner
+      await queryRunner.release();
+
+      return this.findOnePlain(product.id);
     } catch (error) {
+
+      //Cancelar cualquier cambio hecho en la base de datos.
+      await queryRunner.rollbackTransaction();
+
       this.handleDBExceptions(error);
     }
   }
