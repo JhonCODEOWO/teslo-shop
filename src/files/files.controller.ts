@@ -5,10 +5,14 @@ import { fileFilter } from './helpers/fileFiler.helper';
 import { diskStorage } from 'multer';
 import { fileNamer } from './helpers/fileNamer.helper';
 import { Response } from 'express';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('files')
 export class FilesController {
-  constructor(private readonly filesService: FilesService) {}
+  constructor(
+    private readonly filesService: FilesService,
+    private readonly configService: ConfigService
+  ) {}
 
   @Get('product/:filename')
   findProductImage(@Res() res: Response, @Param('filename') filename: string){
@@ -30,10 +34,11 @@ export class FilesController {
   })) //Interceptar la llave file en la petición.
   uploadProductImage(@UploadedFile() file: Express.Multer.File){ //Asignar tipado del archivo que esperamos recibir
 
-    //El file en este apartado ya contiene información sobre el archivo con los datos a donde se va a mover y de donde viene.
+    //El file en este apartado ya contiene información sobre el archivo con los datos del archivo subido
     if(!file) throw new BadRequestException('Make sure to upload a image');
 
-    const secureURL = `${file.filename}`;
+    //Generar url usando la variable de entorno y además añadiendo el nombre del archivo que ya se ha subido al servidor.
+    const secureURL = `${this.configService.get('HOST_API')}/files/product/${file.filename}`;
 
     return secureURL;
   }
