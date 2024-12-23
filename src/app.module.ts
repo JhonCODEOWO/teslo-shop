@@ -5,6 +5,8 @@ import { ProductsModule } from './products/products.module';
 import { CommonModule } from './common/common.module';
 import { SeedModule } from './seed/seed.module';
 import { FilesModule } from './files/files.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -19,6 +21,11 @@ import { FilesModule } from './files/files.module';
       password: process.env.DB_PASSWORD, // Contraseña desde env
       autoLoadEntities: true, //Carga automáticamente las entidades que se van definiendo
       synchronize: true //No debe estar en producción, sincroniza los cambios en las entidades 
+    }),
+
+    ServeStaticModule.forRoot({
+      //Configuraciones para servir el contenido
+      rootPath: join(__dirname, '..', 'public')
     }),
 
     ProductsModule,
