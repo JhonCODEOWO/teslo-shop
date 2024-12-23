@@ -1,0 +1,37 @@
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+
+@Entity('users')
+export class User {
+    @PrimaryGeneratedColumn('uuid')
+    id: string;
+
+    @Column({
+        type: 'text',
+        unique: true,
+    })
+    email: string;
+
+    @Column({
+        type: 'text',
+    })
+    password: string;
+
+    @Column({
+        type: 'text',
+        default: 'Usuario'
+    })
+    fullname: string;
+
+    @Column({
+        type: 'bool',
+        default: true
+    })
+    isActive: boolean; //Se desactiva un usuario en vez de eliminarlos
+
+    @Column({
+        type: 'text',
+        array: true,
+        default: ['user']
+    })
+    roles: string[];
+}
