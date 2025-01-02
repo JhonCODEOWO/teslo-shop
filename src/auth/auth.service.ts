@@ -31,7 +31,7 @@ export class AuthService {
 
       return {
         ...user,
-        token: this.getJwtToken({email: user.email})
+        token: this.getJwtToken({email: user.email, id: user.id})
       };
       //TODO: Retornar el JWT de acceso
 
@@ -45,7 +45,7 @@ export class AuthService {
 
     const user = await this.userRepository.findOne({
       where: { email },
-      select: {email: true, password: true}
+      select: {email: true, password: true, id: true}
     }); //Encontrar un elemento por el email y obtener el registro en base al correo obteniendo solo email y password
 
     if(!user) throw new UnauthorizedException(`The user with email ${email} doesn't exists, try again`);
@@ -55,7 +55,7 @@ export class AuthService {
 
     return {
       ...user,
-      token: this.getJwtToken({email: user.email})
+      token: this.getJwtToken({email: user.email, id: user.id})
     };
   }
 

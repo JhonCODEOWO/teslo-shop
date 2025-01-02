@@ -24,8 +24,8 @@ export class JwtStrategy extends PassportStrategy(Strategy){
 
     //Se va a ejecutar siempre y cuando el token siga activo y el token haga match con el payload
     async validate(payload: JwtPayload): Promise<User>{
-        const {email} = payload;
-        const user = await this.userRepository.findOneBy({email});
+        const {email, id} = payload;
+        const user = await this.userRepository.findOneBy({id});
 
         if(!user) throw new UnauthorizedException('Token no valid');
 
