@@ -2,7 +2,7 @@ import { createParamDecorator, ExecutionContext, InternalServerErrorException } 
 import { User } from "../entities/users.entity";
 
 export const GetUser = createParamDecorator(
-    (data, ctx: ExecutionContext) => {
+    (data, ctx: ExecutionContext) => { //Data representa los argumentos recibidos en el decorador y ctx el contexto de ejecución.
         
         const req = ctx.switchToHttp().getRequest(); //Obtener los datos de la petición
         

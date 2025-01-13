@@ -59,10 +59,11 @@ export class AuthService {
     };
   }
 
+  //Función que devuelve el token y almacena los datos en el payload
   private getJwtToken(payload: JwtPayload){
-    const token = this.jwtService.sign(payload);
+    const token = this.jwtService.sign(payload); //Logear un usuario con el payload que se desea almacenar y obtener el token
 
-    return token;
+    return token; //Retornar el token
   }
 
   private handleDBErrors(error: any): never{
