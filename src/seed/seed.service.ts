@@ -19,10 +19,10 @@ export class SeedService {
     const insertPromises = [];
 
     //Recorrer productos
-    products.forEach(product => {
-      //De cada producto se añade la promesa hacia un arreglo
-      insertPromises.push(this.productService.create(product));
-    })
+    // products.forEach(product => {
+    //   //De cada producto se añade la promesa hacia un arreglo
+    //   insertPromises.push(this.productService.create(product));
+    // })
 
     //Esperar a que todas las promesas se resuelvan
     await Promise.all(insertPromises);

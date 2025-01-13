@@ -13,6 +13,7 @@ import { Product } from './entities/product.entity';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import {validate as isUUID} from 'uuid';
 import { ProductImage } from './entities';
+import { User } from 'src/auth/entities/users.entity';
 
 @Injectable()
 export class ProductsService {
@@ -27,7 +28,7 @@ export class ProductsService {
     private readonly dataSource: DataSource
   ) {}
 
-  async create(createProductDto: CreateProductDto) {
+  async create(createProductDto: CreateProductDto, user: User) {
     try {
       //Desestructurar el dto y obtener las imagenes por separado de los datos de un producto...
       const { images = [], ...productDetails } = createProductDto;
@@ -35,6 +36,7 @@ export class ProductsService {
 
       const product = this.productRepository.create({
         ...productDetails,
+        user: user,
         images: images.map(image => this.productImageRepository.create({ url: image })) //Recorrer los datos dentro de images y crea un registro, TypeORM automáticamente relaciona esas imagenes a el producto
       }); //Solo crea una instancia del repositorio.
 
@@ -105,7 +107,7 @@ export class ProductsService {
     };
   }
 
-  async update(id: string, updateProductDto: UpdateProductDto) {
+  async update(id: string, updateProductDto: UpdateProductDto, user: User) {
 
     //Desestructurar dto
     const {images, ...toUpdate} = updateProductDto;
@@ -141,6 +143,9 @@ export class ProductsService {
       } else {
         //TO DO: CASO EN DONDE NO HAY DATOS EN IMAGES
       }
+
+
+      product.user = user; //Antes de guardar el registro nuevo asignamos el usuario
 
       //Intenta guardar el registro
       await queryRunner.manager.save(product);
