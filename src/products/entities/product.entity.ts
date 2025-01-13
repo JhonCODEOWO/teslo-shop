@@ -1,7 +1,8 @@
 //product.entity.ts
 
-import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { ProductImage } from "./product-image.entity";
+import { User } from "src/auth/entities/users.entity";
 
 //Representación de una tabla
 @Entity({
@@ -62,6 +63,13 @@ export class Product {
         {cascade: true, eager: true} //Definimos si habrá eliminación en cascada
     )
     images?: ProductImage[]
+
+    @ManyToOne(
+        () => User,
+        (user) => user.products,
+        {eager: true}
+    )
+    user: User
 
 
     @BeforeInsert()
