@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -7,6 +7,7 @@ import * as bcrypt from 'bcrypt'; //Importar bcrypt
 import { LoginUserDto } from './dto/login-user.dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { JwtService } from '@nestjs/jwt';
+import { NotFoundError } from 'rxjs';
 
 @Injectable()
 export class AuthService {
@@ -52,6 +53,14 @@ export class AuthService {
 
     //Comparar contraseña con el password en el body.
     if(!bcrypt.compareSync(password, user.password)) throw new UnauthorizedException(`Credentials are not valid, try again`); 
+
+    return {
+      ...user,
+      token: this.getJwtToken({email: user.email, id: user.id})
+    };
+  }
+
+  async checkAuthStatus(user: User){
 
     return {
       ...user,
