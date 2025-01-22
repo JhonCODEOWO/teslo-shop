@@ -20,6 +20,7 @@ export class MessagesWsGateway implements OnGatewayConnection, OnGatewayDisconne
     //Sintaxis: Evento, Payload a enviar (Normalmente es un json)
     this.wss.emit('clients-updated', this.messagesWsService.getConnectedClients()); //Envíar los id de los clientes conectados
   }
+
   handleDisconnect(client: Socket) {
     this.messagesWsService.removeClient(client.id);
 
@@ -28,9 +29,27 @@ export class MessagesWsGateway implements OnGatewayConnection, OnGatewayDisconne
     this.wss.emit('clients-updated', this.messagesWsService.getConnectedClients()); //Envíar los id de los clientes conectados
   }
 
-  //message-from-client
+  //Recibir mensaje del cliente
   @SubscribeMessage('message-from-client')
   handleMessageFromClient(client: Socket, payload: NewMessageDto){
-    console.log(client.id, payload);
+    //Tratar mensaje del cliente
+
+    //Envíar mensaje solamente al cliente.
+    // client.emit('message-from-server', {
+    //   fullName: 'Soy Yo!',
+    //   message: payload.message || 'no message'
+    // })
+
+    //Emitir a todos los clientes menos al cliente inicial.
+    // client.broadcast.emit('message-from-server', {
+    //   fullname: 'Soy yo',
+    //   message: payload.message || 'No message'
+    // })
+
+    //Emitir un mensaje a todos los clientes conectados
+    this.wss.emit('message-from-server', {
+      fullName: 'Yo mismo xd',
+      message: payload.message || 'No message'
+    })
   }
 }
