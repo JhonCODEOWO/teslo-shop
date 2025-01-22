@@ -25,7 +25,8 @@ export class MessagesWsService {
     }
 
     //Retorna cantidad de claves en el objeto connectedClients
-    getConnectedClients(): number{
-        return Object.keys(this.connectedClients).length;
+    getConnectedClients(): string[]{
+        //Retorna un arreglo de strings con las claves del objeto que recibe como parámetro
+        return Object.keys(this.connectedClients);
     }
 }
