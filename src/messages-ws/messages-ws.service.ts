@@ -23,12 +23,16 @@ export class MessagesWsService {
 
     //Método a ejecutar cuando un cliente se conecta
     async registerClient(client: Socket, userId: string){
+
         //Intentar obtener el usurio
         const user = await this.userRepository.findOneBy({id: userId})
 
         //Validar posibles problemas con el usuario y mandar un error
         if(!user) throw new Error('User not found');
         if(!user.isActive) throw new Error('User not active');
+
+        //Verificar si el cliente nuevo ya tiene su usuario registrado anteriormente y desconectarlo antes de generar una nueva conexión.
+        this.checkUserConnection(user);
 
         //Añadir un nuevo elemento en donde id es string y su valor es un objeto con dos claves Socket y User
         this.connectedClients[client.id] = {
@@ -52,5 +56,16 @@ export class MessagesWsService {
     //Retorna el nombre ligado a ese socket id del usuario
     getUserFullNameBySocket(socketId: string): string{
         return this.connectedClients[socketId].user.fullname;
+    }
+
+    private checkUserConnection(user: User){
+        //Recorrer un arreglo de strings que va a contener las claves de connectedClients
+        for (const clientId of Object.keys(this.connectedClients)) {
+            //Usar cada string obtenido para acceder a cada valor de nuestro objeto con claves
+            const connectedClient = this.connectedClients[clientId];
+
+            if (connectedClient.user.id == user.id) connectedClient.socket.disconnect();
+            break;
+        }
     }
 }
